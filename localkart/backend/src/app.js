@@ -10,7 +10,21 @@ import complaintRoutes from './routes/complaintRoutes.js';
 
 const app = express();
 
-app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173' }));
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://fresh-roots-imf3tdr6c-parths-projects-5593cec5.vercel.app',
+  process.env.CLIENT_URL
+].filter(Boolean);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS blocked origin: ${origin}`));
+    }
+  })
+}));
 app.use(express.json());
 app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRoutes);
